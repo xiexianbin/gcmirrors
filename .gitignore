@@ -1,0 +1,6 @@
+.settings
+.idea/
+*.log
+.project
+.pydevproject
+*.iml
