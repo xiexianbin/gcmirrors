@@ -99,7 +99,7 @@ def _get_images_tags_list(domain, repo, image):
 def _sync_image(source_domain, source_repo,
                 target_domain, target_repo,
                 image, tag):
-    if target_domain == "docker.com":
+    if source_domain == "docker.com":
         if source_repo == "":
             source_image = '%s:%s' % (image, tag)
         else:
