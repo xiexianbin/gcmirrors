@@ -5,8 +5,7 @@ services:
   - docker
 script:
   - docker login -u${DOCKER_USER} -p${DOCKER_USER_PASSWORD}
-  - chmod +x ./sync.py
-  - ./sync.py
+  - python sync.py
 branches:
   only:
     - sync
