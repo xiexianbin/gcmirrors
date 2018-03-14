@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # author by xiexianbin@yovole.com
 # function: sync google containers registory to docker.com.
