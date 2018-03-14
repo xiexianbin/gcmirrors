@@ -101,9 +101,9 @@ def _sync_image(source_domain, source_repo,
                 image, tag):
     if target_domain == "docker.com":
         if source_repo == "":
-            source_image = '%s/%s:%s' % (source_repo, image, tag)
-        else:
             source_image = '%s:%s' % (image, tag)
+        else:
+            source_image = '%s/%s:%s' % (source_repo, image, tag)
     else:
         source_image = '%s/%s/%s:%s' % (source_domain, source_repo, image, tag)
 
