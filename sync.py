@@ -136,14 +136,14 @@ def _do_sync():
         # target images tags
         dockerhub_image_tags = _get_images_tags_list("docker.com", DOCKER_REPO, image)
 
-        for gcr_tag in gcr_image_tags:
-            if gcr_tag in dockerhub_image_tags:
-                logger.debug("image: %s, is already sync.")
+        for tag in gcr_image_tags:
+            if tag in dockerhub_image_tags:
+                logger.debug("image: %s:%s, is already sync." % (image, tag))
 
             # do sync
             _sync_image("gcr.io", "google_containers",
                         "docker.com", DOCKER_REPO,
-                        image, gcr_tag)
+                        image, tag)
 
 
 def main():
