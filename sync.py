@@ -62,9 +62,6 @@ def _bash(command, force=False, debug=False):
     logger.debug("Run bash: %s, ret is %s, stderr is: %s"
                  % (command, returncode, stderr))
 
-    if not stdout and not stderr:
-        logger.debug("Run bash: %s, ret is %s" % (command, returncode))
-
     if force:
         return returncode, stdout, stderr
     return returncode
