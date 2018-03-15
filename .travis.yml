@@ -9,3 +9,6 @@ script:
 branches:
   only:
     - sync
+notifications:
+  email:
+    - me@xiexianbin.cn
