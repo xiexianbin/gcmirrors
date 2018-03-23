@@ -66,13 +66,15 @@ def _sort_versions(tags_list):
         # major_version_number.minor_version_number.revision_number[-build_name.build_number]
         v = version.split('-')
         if '.' in v[0]:
-            major_version_number = int(v[0].split('.')[0].replace('v', ''))
-            minor_version_number = int(v[0].split('.')[1])
-            revision_number = int(v[0].split('.')[2])
+            m_version = v[0].split('.')
+            major_version_number = int(m_version[0].replace('v', ''))
+            minor_version_number = int(m_version[1])
+            revision_number = int(m_version[2]) if len(m_version) > 2 else ""
 
             if len(v) == 2:
-                build_name = v[1].split('.')[0]
-                build_number = int(v[1].split('.')[1])
+                b_version = v[1].split('.')
+                build_name = b_version[0]
+                build_number = int(b_version[1])
             else:
                 build_name = ''
                 build_number = ''
@@ -91,6 +93,9 @@ def _sort_versions(tags_list):
     for _v in _version_list:
         if _v[1] == '':
             version_list.append(_v[0])
+        elif _v[2] == '':
+            version_list.append("%s.%s"
+                                % (_v[0], _v[1]))
         elif _v[3] == '':
             version_list.append("%s.%s.%s"
                                 % (_v[0], _v[1], _v[2]))
