@@ -4,13 +4,6 @@
 # function: sync google containers registory to docker.com.
 # date 2018-3-10
 
-##
-# ENV:
-#   1. GH_TOKEN
-#   2.
-#   3.
-##
-
 import json
 import logging
 import subprocess
@@ -67,6 +60,47 @@ def _bash(command, force=False, debug=False):
     return returncode
 
 
+def _sort_versions(tags_list):
+    _version_list = []
+    for version in tags_list:
+        # major_version_number.minor_version_number.revision_number[-build_name.build_number]
+        version_name = version.get("name")
+        v = version_name.split('-')
+        if '.' in v[0]:
+            major_version_number = int(v[0].split('.')[0].replace('v', ''))
+            minor_version_number = int(v[0].split('.')[1])
+            revision_number = int(v[0].split('.')[2])
+
+            if len(v) == 2:
+                build_name = v[1].split('.')[0]
+                build_number = int(v[1].split('.')[1])
+            else:
+                build_name = ''
+                build_number = ''
+
+            versions = [major_version_number,
+                        minor_version_number,
+                        revision_number,
+                        build_name,
+                        build_number]
+        else:
+            versions = [v[0], '', '', '', '']
+        _version_list.append(versions)
+    _version_list = sorted(_version_list, key = lambda x: (x[0], x[1]))
+
+    version_list = []
+    for _v in _version_list:
+        if _v[1] == '':
+            version_list.append(_v[0])
+        elif _v[3] == '':
+            version_list.append("%s.%s.%s"
+                                % (_v[0], _v[1], _v[2]))
+        elif _v[4] == '':
+            version_list.append("%s.%s.%s-%s.%s"
+                                % (_v[0], _v[1], _v[2], _v[3], _v[4]))
+    return version_list
+
+
 def _init_git():
     _bash('git config user.name "xiexianbin"')
     _bash('git config user.email "me@xiexianbin.cn"')
@@ -77,20 +111,23 @@ def _init_git():
 
 
 def _get_images_tags_list(domain, repo, image):
-    tags_list = []
+    _tags_list = []
     url = DOCKER_TAGS_API_URL_TEMPLATE[domain] % {"repo": repo, "image": image}
     try:
         json_tags = json.load(urllib2.urlopen(url))
     except urllib2.HTTPError as e:
         logger.warn("get url: %s, except: %s"
                     % (url, e.msg))
-        return tags_list
+        return _tags_list
     if domain == "docker.com":
         for t in json_tags:
-            tags_list.append(t.get("name"))
+            _tags_list.append(t.get("name"))
     elif domain == "gcr.io":
         tags_list = json_tags.get("tags")
-    return tags_list
+
+    # sort version:
+    # major_version_number.minor_version_number.revision_number[-build_name.build_number]
+    return _sort_versions(_tags_list)
 
 
 def _sync_image(source_domain, source_repo,
