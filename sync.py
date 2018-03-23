@@ -64,8 +64,7 @@ def _sort_versions(tags_list):
     _version_list = []
     for version in tags_list:
         # major_version_number.minor_version_number.revision_number[-build_name.build_number]
-        version_name = version.get("name")
-        v = version_name.split('-')
+        v = version.split('-')
         if '.' in v[0]:
             major_version_number = int(v[0].split('.')[0].replace('v', ''))
             minor_version_number = int(v[0].split('.')[1])
