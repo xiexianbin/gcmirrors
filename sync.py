@@ -74,7 +74,10 @@ def _sort_versions(tags_list):
             if len(v) == 2:
                 b_version = v[1].split('.')
                 build_name = b_version[0]
-                build_number = int(b_version[1]) if len(b_version) > 1 else ""
+                try:
+                    build_number = int(b_version[1]) if len(b_version) > 1 else ""
+                except:
+                    build_number = b_version[1]
             else:
                 build_name = ''
                 build_number = ''
