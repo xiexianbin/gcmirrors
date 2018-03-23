@@ -69,7 +69,10 @@ def _sort_versions(tags_list):
             m_version = v[0].split('.')
             major_version_number = int(m_version[0].replace('v', ''))
             minor_version_number = int(m_version[1]) if isinstance(m_version[1], int) else m_version[1]
-            revision_number = int(m_version[2]) if len(m_version) > 2 else ""
+            try:
+                revision_number = int(m_version[2]) if len(m_version) > 2 else ""
+            except:
+                revision_number = m_version[2]
 
             if len(v) == 2:
                 b_version = v[1].split('.')
