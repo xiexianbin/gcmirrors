@@ -100,16 +100,16 @@ def _sort_versions(tags_list):
         if _v[1] == '':
             version_list.append(_v[0])
         elif _v[2] == '':
-            version_list.append("%s.%s"
+            version_list.append("v%s.%s"
                                 % (_v[0], _v[1]))
         elif _v[3] == '':
-            version_list.append("%s.%s.%s"
+            version_list.append("v%s.%s.%s"
                                 % (_v[0], _v[1], _v[2]))
         elif _v[4] == '':
-            version_list.append("%s.%s.%s-%s"
+            version_list.append("v%s.%s.%s-%s"
                                 % (_v[0], _v[1], _v[2], _v[3]))
         else:
-            version_list.append("%s.%s.%s-%s.%s"
+            version_list.append("v%s.%s.%s-%s.%s"
                                 % (_v[0], _v[1], _v[2], _v[3], _v[4]))
     return version_list
 
