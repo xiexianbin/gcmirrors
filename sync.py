@@ -136,7 +136,7 @@ def _get_images_tags_list(domain, repo, image):
         for t in json_tags:
             _tags_list.append(t.get("name"))
     elif domain == "gcr.io":
-        tags_list = json_tags.get("tags")
+        _tags_list = json_tags.get("tags")
 
     if image in ["kubekins-test"]:
         return _tags_list
