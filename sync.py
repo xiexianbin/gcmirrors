@@ -138,9 +138,12 @@ def _get_images_tags_list(domain, repo, image):
     elif domain == "gcr.io":
         tags_list = json_tags.get("tags")
 
-    # sort version:
-    # major_version_number.minor_version_number.revision_number[-build_name.build_number]
-    return _sort_versions(_tags_list)
+    if image in ["kubekins-test"]:
+        return _tags_list
+    else:
+        # sort version:
+        # major_version_number.minor_version_number.revision_number[-build_name.build_number]
+        return _sort_versions(_tags_list)
 
 
 def _sync_image(source_domain, source_repo,
