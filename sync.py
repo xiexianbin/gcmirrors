@@ -41,7 +41,8 @@ GIT_TOKEN=os.environ.get("GIT_TOKEN", "")
 GIT_USER="xiexianbin"
 GIT_REPO="googlecontainersmirrors"
 DOCKER_REPO=GIT_REPO
-TMP_PATH='/tmp/googlecontainersmirrors'
+TMP_PATH='/tmp/%s' % GIT_REPO
+CURRENT_PATH = os.getcwd()
 
 DOCKER_TAGS_API_URL_TEMPLATE = {
     "docker.com": "https://registry.hub.docker.com/v1/repositories/%(repo)s/%(image)s/tags",
@@ -175,14 +176,18 @@ def _init_git():
     _bash('git config user.name "xiexianbin"')
     _bash('git config user.email "me@xiexianbin.cn"')
 
+    if os.path.exists(TMP_PATH):
+        _bash('rm -rf %s' % TMP_PATH)
+    os.chdir("/tmp")
+
     # clone master branch
     _bash('git clone "https://%s@github.com/%s/%s.git"'
           % (GIT_TOKEN, GIT_USER, GIT_REPO))
 
+    os.chdir(CURRENT_PATH)
+
 
 def _update_change(images_list):
-    os.makedirs(TMP_PATH)
-
     # for readme.md
     in_path = "./template/README.md"
     out_path = os.path.join(TMP_PATH, "README.md")
@@ -193,8 +198,7 @@ def _update_change(images_list):
 
 
 def _push_git():
-    os.chdir(TMP_PATH)
-    _bash('git config user.name "xiexianbin"')
+    
     _bash('git add .')
     _bash('git commit -m "auto sync gcr.io images to googlecontainersmirrors"')
     _bash('git push --quiet "https://$s@github.com/%s/%s.git" master:master'
