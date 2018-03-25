@@ -32,7 +32,8 @@ Total of {{ image_count }}'s gcr.io images
 
 | No | sync from | docker hub | tags count | total size | last sync time | more |
 | - | - | - | - | - | - | - |
-{% for index in range(len(images_list)) %}
+{% for index in range(image_count) %}
+{% set no = index + 1 %}
 {% set image = images_list[index] %}
 {% set name = image['name'] %}
 {% set sync_from = "https://gcr.io/google-containers/%s" % name %}
@@ -41,7 +42,7 @@ Total of {{ image_count }}'s gcr.io images
 {% set total_size = image['total_size'] %}
 {% set date = image['date'] %}
 {% set more = './google-containers/%s.md' % name %}
-| {{ index }} | [{{ sync_from }}]({{ sync_from }}) | [{{ docker_hub }}]({{ docker_hub }}) | {{ tags_count }} | {{ total_size }} | {{ date }} | [more]({{ more }}) |
+| {{ no }} | [{{ sync_from }}]({{ sync_from }}) | [{{ docker_hub }}]({{ docker_hub }}) | {{ tags_count }} | {{ total_size }} | {{ date }} | [more]({{ more }}) |
 {% endfor %}
 
 Support
