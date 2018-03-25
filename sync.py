@@ -4,6 +4,7 @@
 # function: sync google containers registory to docker.com.
 # date 2018-3-10
 
+import datetime
 from jinja2 import Template
 import json
 import logging
