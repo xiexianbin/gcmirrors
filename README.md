@@ -18,6 +18,6 @@ GIT_TOKEN=
 
 ```
 docker login -u${DOCKER_USER} -p${DOCKER_USER_PASSWORD}
-pip install jinja2 -y
+pip install jinja2
 python sync.py
 ```
