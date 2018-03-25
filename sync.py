@@ -230,7 +230,7 @@ def _do_sync():
                             "tags": gcr_image_tags,
                             "total_count": len(gcr_image_tags),
                             "total_size": "unkonw",
-                            "date": datetime.datetime.now()})
+                            "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S %z")})
 
     return images_list
 
