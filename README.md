@@ -1,5 +1,7 @@
 # googlecontainersmirrors
 
+[![Sync Status](https://travis-ci.org/xiexianbin/googlecontainersmirrors.svg?branch=sync)](https://travis-ci.org/xiexianbin/googlecontainersmirrors)
+
 [https://hub.docker.com/u/googlecontainersmirrors](https://hub.docker.com/u/googlecontainersmirrors)
 
 googlecontainersmirrors.txt from [https://console.cloud.google.com/gcr/images/google-containers/GLOBAL](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL)

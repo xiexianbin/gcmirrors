@@ -32,8 +32,8 @@ Total of {{ image_count }}'s gcr.io images
 
 | No | sync from | docker hub | count tags | total size | last sync time | more |
 | - | - | - | - | - | - | - |
-{% for user in users %}
-|  |  |  |  |  |  |  |
+{% for index in range(len(images_list)) %}
+| {{ index }} | https://gcr.io/google-containers/{{ images_list[index]['name'] }} | https://hub.docker.com/u/googlecontainersmirrors/{{ images_list[index]['name'] }}/tags/ | {{ len(images_list[index]['tags']) }} | {{ images_list[index]['total_size'] }} | {{ images_list[index]['date'] }} | [more](./google-containers/{{ images_list[index]['name'] }}) |
 {% endfor %}
 
 Support

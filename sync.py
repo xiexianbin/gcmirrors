@@ -179,7 +179,7 @@ def _init_git():
           % (GIT_TOKEN, GIT_USER, GIT_REPO))
 
 
-def _update_change():
+def _update_change(images_list):
     os.makedirs(TMP_PATH)
 
     # for readme.md
@@ -187,7 +187,7 @@ def _update_change():
     out_path = os.path.join(TMP_PATH, "README.md")
     with open(in_path, 'r') as in_file, open(out_path, 'w') as out_file:
         tmle = Template(in_file.read())
-        out_file.write(tmle.render(os.environ))
+        out_file.write(tmle.render(images_list))
 
 
 def _push_git():
@@ -222,7 +222,8 @@ def _do_sync():
 
         images_list.append({"name": image,
                             "tags": gcr_image_tags,
-                            "total_size": "unkonw"})
+                            "total_size": "unkonw",
+                            "date": datetime.datetime.now()})
 
     return images_list
 
