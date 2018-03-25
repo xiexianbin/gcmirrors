@@ -37,7 +37,7 @@ Total of {{ image_count }}'s gcr.io images
 {% set name = image['name'] %}
 {% set sync_from = "https://gcr.io/google-containers/%s" % name %}
 {% set docker_hub = "https://hub.docker.com/u/google-containers/%s/tags/" % name %}
-{% set tags_count = len(image['tags']) %}
+{% set total_count = image['total_count'] %}
 {% set total_size = image['total_size'] %}
 {% set date = image['date'] %}
 {% set more = './google-containers/%s.md' % name %}
