@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# author by xiexianbin@yovole.com
+# author by me@xiexianbin.cn
 # function: sync google containers registory to docker.com.
 # date 2018-3-10
 
+from jinja2 import Template
 import json
 import logging
+import os
 import subprocess
 import sys
 import urllib2
@@ -34,10 +36,11 @@ logger.addHandler(oh)
 # define file path
 GCR_IMAGES = "https://raw.githubusercontent.com/xiexianbin/googlecontainersmirrors/sync/googlecontainersmirrors.txt"
 
-GH_TOKEN=1
+GIT_TOKEN=os.environ.get("GIT_TOKEN", "")
 GIT_USER="xiexianbin"
 GIT_REPO="googlecontainersmirrors"
 DOCKER_REPO=GIT_REPO
+TMP_PATH='/tmp/googlecontainersmirrors'
 
 DOCKER_TAGS_API_URL_TEMPLATE = {
     "docker.com": "https://registry.hub.docker.com/v1/repositories/%(repo)s/%(image)s/tags",
@@ -114,15 +117,6 @@ def _sort_versions(tags_list):
     return version_list
 
 
-def _init_git():
-    _bash('git config user.name "xiexianbin"')
-    _bash('git config user.email "me@xiexianbin.cn"')
-
-    # clone master branch
-    _bash('git clone "https://%s@github.com/%s/%s.git"'
-          % (GH_TOKEN, GIT_USER, GIT_REPO))
-
-
 def _get_images_tags_list(domain, repo, image):
     _tags_list = []
     url = DOCKER_TAGS_API_URL_TEMPLATE[domain] % {"repo": repo, "image": image}
@@ -176,7 +170,37 @@ def _sync_image(source_domain, source_repo,
     _bash('docker system prune -f -a')
 
 
+def _init_git():
+    _bash('git config user.name "xiexianbin"')
+    _bash('git config user.email "me@xiexianbin.cn"')
+
+    # clone master branch
+    _bash('git clone "https://%s@github.com/%s/%s.git"'
+          % (GIT_TOKEN, GIT_USER, GIT_REPO))
+
+
+def _update_change():
+    os.makedirs(TMP_PATH)
+
+    # for readme.md
+    in_path = "./template/README.md"
+    out_path = os.path.join(TMP_PATH, "README.md")
+    with open(in_path, 'r') as in_file, open(out_path, 'w') as out_file:
+        tmle = Template(in_file.read())
+        out_file.write(tmle.render(os.environ))
+
+
+def _push_git():
+    os.chdir(TMP_PATH)
+    _bash('git config user.name "xiexianbin"')
+    _bash('git add .')
+    _bash('git commit -m "auto sync gcr.io images to googlecontainersmirrors"')
+    _bash('git push --quiet "https://${GH_TOKEN}@github.com/%s/%s.git" master:master'
+          % (GIT_TOKEN, GIT_USER, GIT_REPO))
+
+
 def _do_sync():
+    images_list = []
     for image in urllib2.urlopen(GCR_IMAGES):
         image = image.replace("\n", "")
         logger.debug("Begin to sync image: [%s]" % image)
@@ -196,20 +220,27 @@ def _do_sync():
                         "docker.com", DOCKER_REPO,
                         image, tag)
 
+        images_list.append({"name": image,
+                            "tags": gcr_image_tags,
+                            "total_size": "unkonw"})
+
+    return images_list
+
 
 def main():
     logger.info("--- Begin to sync googlecontainersmirrors ---")
 
     # 1. copy mirror
-    #_init_git()
-    #print
-    #print
+    _init_git()
 
     # 2. do sync
-    _do_sync()
+    images_list = _do_sync()
 
     # 3. update
+    _update_change(images_list)
 
+    # 4. push
+    _push_git()
 
     logger.info("--- End to sync googlecontainersmirrors ---")
 
