@@ -188,7 +188,7 @@ def _update_change(images_list):
     out_path = os.path.join(TMP_PATH, "README.md")
     with open(in_path, 'r') as in_file, open(out_path, 'w') as out_file:
         tmle = Template(in_file.read())
-        out_file.write(tmle.render(images_list))
+        out_file.write(tmle.render({"images_list": images_list}))
 
 
 def _push_git():
