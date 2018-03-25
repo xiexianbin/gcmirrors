@@ -32,7 +32,7 @@ Total of {{ image_count }}'s gcr.io images
 
 | No | sync from | docker hub | tags count | total size | last sync time | more |
 | - | - | - | - | - | - | - |
-{%- for index in range(image_count) %}
+{%- for index in range(image_count) -%}
 {%- set no = index + 1 -%}
 {%- set image = images_list[index] -%}
 {%- set name = image['name'] -%}
@@ -41,7 +41,7 @@ Total of {{ image_count }}'s gcr.io images
 {%- set tags_count = image['tags_count'] -%}
 {%- set total_size = image['total_size'] -%}
 {%- set date = image['date'] -%}
-{%- set more = './google-containers/%s.md' % name -%}
+{%- set more = './google-containers/%s.md' % name %}
 | {{ no }} | [{{ name }}]({{ sync_from }}) | [{{ name }}]({{ docker_hub }}) | {{ tags_count }} | {{ total_size }} | {{ date }} | [more]({{ more }}) |
 {%- endfor -%}
 
