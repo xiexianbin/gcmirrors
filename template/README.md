@@ -32,18 +32,18 @@ Total of {{ image_count }}'s gcr.io images
 
 | No | sync from | docker hub | tags count | total size | last sync time | more |
 | - | - | - | - | - | - | - |
-{% for index in range(image_count) %}
-{% set no = index + 1 %}
-{% set image = images_list[index] %}
-{% set name = image['name'] %}
-{% set sync_from = "https://gcr.io/google-containers/%s" % name %}
-{% set docker_hub = "https://hub.docker.com/u/google-containers/%s/tags/" % name %}
-{% set total_count = image['total_count'] %}
-{% set total_size = image['total_size'] %}
-{% set date = image['date'] %}
-{% set more = './google-containers/%s.md' % name %}
-| {{ no }} | [{{ sync_from }}]({{ sync_from }}) | [{{ docker_hub }}]({{ docker_hub }}) | {{ tags_count }} | {{ total_size }} | {{ date }} | [more]({{ more }}) |
-{% endfor %}
+{%- for index in range(image_count) -%}
+{%- set no = index + 1 -%}
+{%- set image = images_list[index] -%}
+{%- set name = image['name'] -%}
+{%- set sync_from = "https://gcr.io/google-containers/%s" % name -%}
+{%- set docker_hub = "https://hub.docker.com/u/google-containers/%s/tags/" % name -%}
+{%- set tags_count = image['tags_count'] -%}
+{%- set total_size = image['total_size'] -%}
+{%- set date = image['date'] -%}
+{%- set more = './google-containers/%s.md' % name -%}
+| {{ no }} | [{{ name }}]({{ sync_from }}) | [{{ name }}]({{ docker_hub }}) | {{ tags_count }} | {{ total_size }} | {{ date }} | [more]({{ more }}) |
+{%- endfor -%}
 
 Support
 -------
