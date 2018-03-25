@@ -194,7 +194,8 @@ def _update_change(images_list):
     with open(in_path, 'r') as in_file, open(out_path, 'w') as out_file:
         tmle = Template(in_file.read())
         out_file.write(tmle.render({"images_list": images_list,
-                                    "image_count": len(images_list)}))
+                                    "image_count": len(images_list),
+                                    "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}))
 
 
 def _push_git():
