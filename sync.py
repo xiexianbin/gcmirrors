@@ -197,7 +197,7 @@ def _push_git():
     _bash('git config user.name "xiexianbin"')
     _bash('git add .')
     _bash('git commit -m "auto sync gcr.io images to googlecontainersmirrors"')
-    _bash('git push --quiet "https://${GH_TOKEN}@github.com/%s/%s.git" master:master'
+    _bash('git push --quiet "https://$s@github.com/%s/%s.git" master:master'
           % (GIT_TOKEN, GIT_USER, GIT_REPO))
 
 
