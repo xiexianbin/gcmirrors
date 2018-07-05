@@ -134,7 +134,7 @@ def _get_images_tags_list(domain, repo, image):
     elif domain == "gcr.io":
         _tags_list = json_tags.get("tags")
 
-    if image in ["kubekins-test"]:
+    if image in ["kubekins-test", "kube-cross"]:
         return _tags_list
     else:
         # sort version:
