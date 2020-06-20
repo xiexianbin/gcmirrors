@@ -13,7 +13,7 @@ import subprocess
 import sys
 import urllib2
 
-## start log
+# start log
 # create logger
 log_level = logging.DEBUG
 formatter = logging.Formatter(
@@ -32,16 +32,16 @@ oh = logging.StreamHandler(sys.stdout)
 oh.setLevel(log_level)
 oh.setFormatter(formatter)
 logger.addHandler(oh)
-## end log
+# end log
 
 # define file path
 GCR_IMAGES = "https://raw.githubusercontent.com/xiexianbin/googlecontainersmirrors/sync/googlecontainersmirrors.txt"
 
-GIT_TOKEN=os.environ.get("GIT_TOKEN", "")
-GIT_USER="xiexianbin"
-GIT_REPO="googlecontainersmirrors"
-DOCKER_REPO=GIT_REPO
-TMP_PATH='/tmp/%s' % GIT_REPO
+GIT_TOKEN = os.environ.get("GIT_TOKEN", "")
+GIT_USER = "xiexianbin"
+GIT_REPO = "googlecontainersmirrors"
+DOCKER_REPO = GIT_REPO
+TMP_PATH = '/tmp/%s' % GIT_REPO
 CURRENT_PATH = os.getcwd()
 
 DOCKER_TAGS_API_URL_TEMPLATE = {
@@ -72,10 +72,16 @@ def _sort_versions(tags_list):
         v = version.split('-')
         if '.' in v[0]:
             m_version = v[0].split('.')
-            major_version_number = int(m_version[0].replace('v', ''))
-            minor_version_number = int(m_version[1]) if isinstance(m_version[1], int) else m_version[1]
             try:
-                revision_number = int(m_version[2]) if len(m_version) > 2 else ""
+                major_version_number = int(m_version[0].replace('v', ''))
+            except:
+                # cadvisor:v.25.0
+                major_version_number = ""
+            minor_version_number = int(m_version[1]) if isinstance(
+                m_version[1], int) else m_version[1]
+            try:
+                revision_number = int(m_version[2]) if len(
+                    m_version) > 2 else ""
             except:
                 revision_number = m_version[2]
 
@@ -83,7 +89,8 @@ def _sort_versions(tags_list):
                 b_version = v[1].split('.')
                 build_name = b_version[0]
                 try:
-                    build_number = int(b_version[1]) if len(b_version) > 1 else ""
+                    build_number = int(b_version[1]) if len(
+                        b_version) > 1 else ""
                 except:
                     build_number = b_version[1]
             else:
@@ -98,7 +105,7 @@ def _sort_versions(tags_list):
         else:
             versions = [v[0], '', '', '', '']
         _version_list.append(versions)
-    _version_list = sorted(_version_list, key = lambda x: (x[0], x[1]))
+    _version_list = sorted(_version_list, key=lambda x: (x[0], x[1]))
 
     version_list = []
     for _v in _version_list:
@@ -213,9 +220,11 @@ def _do_sync():
         logger.debug("Begin to sync image: [%s]" % image)
 
         # source images tags
-        gcr_image_tags = _get_images_tags_list("gcr.io", "google_containers", image)
+        gcr_image_tags = _get_images_tags_list(
+            "gcr.io", "google_containers", image)
         # target images tags
-        dockerhub_image_tags = _get_images_tags_list("docker.com", DOCKER_REPO, image)
+        dockerhub_image_tags = _get_images_tags_list(
+            "docker.com", DOCKER_REPO, image)
 
         for tag in gcr_image_tags:
             if tag in dockerhub_image_tags:

@@ -21,17 +21,11 @@ From Google Containers Registry Mirrors:
 docker pull googlecontainersmirrors/hyperkube:v1.9.6
 ```
 
-[SyncLog](./SyncLog.md)
--------
-
-[Images](./google-containers/)
--------
-
 Total of {{ image_count }}'s gcr.io images
 -------
 
-| No | sync from | docker hub | tags count | total size | last sync time | more |
-| - | - | - | - | - | - | - |
+| No  | sync from | docker hub | tags count | total size | last sync time |
+| --- | --------- | ---------- | ---------- | ---------- | -------------- |
 {%- for index in range(image_count) -%}
 {%- set no = index + 1 -%}
 {%- set image = images_list[index] -%}
@@ -41,8 +35,7 @@ Total of {{ image_count }}'s gcr.io images
 {%- set tags_count = image['tags_count'] -%}
 {%- set total_size = image['total_size'] -%}
 {%- set date = image['date'] -%}
-{%- set more = './google-containers/%s.md' % name %}
-| {{ no }} | [{{ name }}]({{ sync_from }}) | [{{ name }}]({{ docker_hub }}) | {{ tags_count }} | {{ total_size }} | {{ date }} | [more]({{ more }}) |
+| {{ no }} | [{{ name }}]({{ sync_from }}) | [{{ name }}]({{ docker_hub }}) | {{ tags_count }} | {{ total_size }} | {{ date }} |
 {%- endfor -%}
 
 Support
