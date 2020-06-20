@@ -1,10 +1,10 @@
-# googlecontainersmirrors
+# gcr.io mirrors
 
-[![Sync Status](https://travis-ci.org/xiexianbin/googlecontainersmirrors.svg?branch=sync)](https://travis-ci.org/xiexianbin/googlecontainersmirrors)
+[![Sync Status](https://travis-ci.org/xiexianbin/gcmirrors.svg?branch=sync)](https://travis-ci.org/xiexianbin/gcmirrors)
 
-[https://hub.docker.com/u/googlecontainersmirrors](https://hub.docker.com/u/googlecontainersmirrors)
+[https://hub.docker.com/u/gcmirrors](https://hub.docker.com/u/gcmirrors)
 
-googlecontainersmirrors.txt from [https://console.cloud.google.com/gcr/images/google-containers/GLOBAL](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL)
+gcmirrors.txt from [https://console.cloud.google.com/gcr/images/google-containers/GLOBAL](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL)
 
 
 ## Parameter

@@ -20,10 +20,10 @@ formatter = logging.Formatter(
     fmt="%(asctime)-15s %(levelname)s %(process)d %(message)s - %(filename)s %(lineno)d",
     datefmt="%a %d %b %Y %H:%M:%S")
 
-logger = logging.getLogger(name="googlecontainersmirrors")
+logger = logging.getLogger(name="gcmirrors")
 logger.setLevel(log_level)
 
-fh = logging.FileHandler(filename="googlecontainersmirrors.log")
+fh = logging.FileHandler(filename="gcmirrors.log")
 fh.setLevel(log_level)
 fh.setFormatter(formatter)
 logger.addHandler(fh)
@@ -35,11 +35,11 @@ logger.addHandler(oh)
 # end log
 
 # define file path
-GCR_IMAGES = "https://raw.githubusercontent.com/xiexianbin/googlecontainersmirrors/sync/googlecontainersmirrors.txt"
+GCR_IMAGES = "https://raw.githubusercontent.com/xiexianbin/gcmirrors/sync/gcmirrors.txt"
 
 GIT_TOKEN = os.environ.get("GIT_TOKEN", "")
 GIT_USER = "xiexianbin"
-GIT_REPO = "googlecontainersmirrors"
+GIT_REPO = "mirrors"
 DOCKER_REPO = GIT_REPO
 TMP_PATH = '/tmp/%s' % GIT_REPO
 CURRENT_PATH = os.getcwd()
@@ -208,7 +208,7 @@ def _update_change(images_list):
 def _push_git():
     os.chdir(TMP_PATH)
     _bash('git add .')
-    _bash('git commit -m "auto sync gcr.io images to googlecontainersmirrors"')
+    _bash('git commit -m "auto sync gcr.io images to gcmirrors"')
     _bash('git push --quiet "https://%s@github.com/%s/%s.git" master:master'
           % (GIT_TOKEN, GIT_USER, GIT_REPO))
 
@@ -246,7 +246,7 @@ def _do_sync():
 
 
 def main():
-    logger.info("--- Begin to sync googlecontainersmirrors ---")
+    logger.info("--- Begin to sync gcmirrors ---")
 
     # 1. copy mirror
     _init_git()
@@ -260,7 +260,7 @@ def main():
     # 4. push
     _push_git()
 
-    logger.info("--- End to sync googlecontainersmirrors ---")
+    logger.info("--- End to sync gcmirrors ---")
 
 
 if __name__ == '__main__':

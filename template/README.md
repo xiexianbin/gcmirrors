@@ -1,11 +1,11 @@
 Google Containers Registry Mirrors [last sync {{ date }}]
 -------
 
-[![Sync Status](https://travis-ci.org/xiexianbin/googlecontainersmirrors.svg?branch=sync)](https://travis-ci.org/xiexianbin/googlecontainersmirrors)
+[![Sync Status](https://travis-ci.org/xiexianbin/gcmirrors.svg?branch=sync)](https://travis-ci.org/xiexianbin/gcmirrors)
 
 Repository Address:
 
-[https://hub.docker.com/u/googlecontainersmirrors/](https://hub.docker.com/u/googlecontainersmirrors/)
+[https://hub.docker.com/u/gcmirrors/](https://hub.docker.com/u/gcmirrors/)
 
 
 Useage
@@ -13,12 +13,12 @@ Useage
 
 From gcr.io:
 ```bash
-docker pull gcr.io/google-containers/googlecontainersmirrors/hyperkube:v1.9.6
+docker pull gcr.io/google-containers/gcmirrors/hyperkube:v1.9.6
 ```
 
 From Google Containers Registry Mirrors:
 ```bash
-docker pull googlecontainersmirrors/hyperkube:v1.9.6
+docker pull gcmirrors/hyperkube:v1.9.6
 ```
 
 Total of {{ image_count }}'s gcr.io images
@@ -31,7 +31,7 @@ Total of {{ image_count }}'s gcr.io images
 {%- set image = images_list[index] -%}
 {%- set name = image['name'] -%}
 {%- set sync_from = "https://gcr.io/google-containers/%s" % name -%}
-{%- set docker_hub = "https://hub.docker.com/u/googlecontainersmirrors/%s/tags/" % name -%}
+{%- set docker_hub = "https://hub.docker.com/u/gcmirrors/%s/tags/" % name -%}
 {%- set tags_count = image['tags_count'] -%}
 {%- set total_size = image['total_size'] -%}
 {%- set date = image['date'] -%}
