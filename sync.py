@@ -39,7 +39,7 @@ GCR_IMAGES = "https://raw.githubusercontent.com/xiexianbin/gcmirrors/sync/gcmirr
 
 GIT_TOKEN = os.environ.get("GIT_TOKEN", "")
 GIT_USER = "xiexianbin"
-GIT_REPO = "mirrors"
+GIT_REPO = "gcmirrors"
 DOCKER_REPO = GIT_REPO
 TMP_PATH = '/tmp/%s' % GIT_REPO
 CURRENT_PATH = os.getcwd()
