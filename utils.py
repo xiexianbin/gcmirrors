@@ -11,8 +11,7 @@ import subprocess
 
 from urllib import parse
 from urllib import request
-from urllib import response
-from urllib import urllib_error
+from urllib import error as urllib_error
 
 
 def gen_logger():
@@ -47,8 +46,8 @@ def now():
 def bash(command, force=False, debug=False):
     args = ['bash', '-c', command]
 
-    _sub_p = subprocess.Popen(args, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+    _sub_p = subprocess.Popen(
+        args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = _sub_p.communicate()
     return_code = _sub_p.poll()
     if debug:
