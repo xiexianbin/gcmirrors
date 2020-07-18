@@ -95,6 +95,9 @@ def sort_versions(tags_list):
     for version in tags_list:
         # major_version_number.minor_version_number.revision_number[-build_name.build_number]
         v = version.split('-')
+        if v[0].startswith('v') is False:
+            return tags_list
+
         if '.' in v[0]:
             m_version = v[0].split('.')
             try:
@@ -134,6 +137,7 @@ def sort_versions(tags_list):
         _version_list = sorted(_version_list, key=lambda x: (x[0], x[1]))
     except:
         logger.error("sort [{}] traceback: {}".format(_version_list, traceback.print_exc()))
+        return tags_list
 
     version_list = []
     for _v in _version_list:
