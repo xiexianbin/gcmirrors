@@ -1,11 +1,11 @@
 language: python
 python:
-  - "2.7"
+  - "3.7"
 services:
   - docker
 script:
   - docker login -u${DOCKER_USER} -p${DOCKER_USER_PASSWORD}
-  - pip install jinja2
+  - pip install jinja2 urllib3
   - chmod +x sync.py
   - ./sync.py
 branches:
