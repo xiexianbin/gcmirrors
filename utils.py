@@ -51,9 +51,8 @@ def bash(command, force=False, debug=False):
         args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = _sub_p.communicate()
     return_code = _sub_p.poll()
-    if debug:
-        logger.debug(
-            "Run bash: {}, ret is %s, stderr is: {}".format(command, return_code, stderr))
+    logger.debug(
+        "Run bash: {}, ret is %s, stderr is: {}".format(command, return_code, stderr))
 
     if not stdout and not stderr:
         logger.info("Run bash: %s, ret is %s" % (command, return_code))
