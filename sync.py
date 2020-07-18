@@ -73,6 +73,7 @@ def _do_sync_image(
     bash('docker tag {} {}'.format(source_image, target_image))
     # push
     bash('docker push {}'.format(target_image))
+    logger.info("sync image from {} to {} success.".format(source_image, target_image))
 
     # clean the docker file
     bash('docker system prune -f -a')
