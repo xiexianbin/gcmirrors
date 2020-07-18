@@ -18,7 +18,7 @@ def gen_logger():
     # create logger
     log_level = logging.DEBUG
     formatter = logging.Formatter(
-        fmt="%(asctime)-15s %(levelname)s %(process)d %(message)s - %(filename)s %(lineno)d",
+        fmt="%(asctime)-15s %(process)d %(levelname)s %(message)s - %(filename)s %(lineno)d",
         datefmt="%a %d %b %Y %H:%M:%S")
 
     _logger = logging.getLogger(name="gcmirrors")

@@ -35,7 +35,7 @@ def _get_images_tags_list(domain, repo, image):
         resp = get(url)
         tags = json.loads(resp)
     except urllib_error.HTTPError as e:
-        logger.warn("get url: {}, except: {}".format(url, e.reason))
+        logger.warning("get url: {}, except: {}".format(url, e.reason))
         return _tags_list
     if domain == "docker.com":
         for t in tags:
@@ -136,7 +136,7 @@ def _sync_image(image):
             "docker.com", DOCKER_REPO,
             image, tag)
 
-    return gcr_image_tags
+    return "@@".join(gcr_image_tags)
 
 
 def _do_sync():
@@ -144,10 +144,14 @@ def _do_sync():
     result_images_list = []
 
     logger.info("init multiprocessing pool, main pid is [{}]".format(os.getpid()))
-    pp = Pool(5)
+    pp = Pool(10)
+    subprocess_result = []
     for image in _target_images_list:
-        result = pp.apply_async(_sync_image, args=(image,))
-        gcr_image_tags = result.get()
+        subprocess_result.append(pp.apply_async(_sync_image, args=(image,)))
+
+    for result in subprocess_result:
+        r = result.get()
+        gcr_image_tags = r.split("@@")
 
         result_images_list.append({
             "name": image,
@@ -155,9 +159,10 @@ def _do_sync():
             "tags_count": len(gcr_image_tags),
             "total_size": "-",
             "date": now()})
+
     pp.close()
     pp.join()
-    logger.info('All subprocesses done.')
+    logger.info('All subprocess done.')
 
     return result_images_list
 
