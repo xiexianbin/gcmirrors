@@ -52,10 +52,10 @@ def bash(command, force=False, debug=False):
     stdout, stderr = _sub_p.communicate()
     return_code = _sub_p.poll()
     logger.debug(
-        "Run bash: {}, ret is %s, stderr is: {}".format(command, return_code, stderr))
+        "Run bash: {}, ret is {}, stderr is: {}".format(command, return_code, stderr))
 
     if not stdout and not stderr:
-        logger.info("Run bash: %s, ret is %s" % (command, return_code))
+        logger.info("Run bash: {}, ret is {}".format(command, return_code))
 
     if force:
         return return_code, stdout, stderr
@@ -140,15 +140,11 @@ def sort_versions(tags_list):
         if _v[1] == '':
             version_list.append(_v[0])
         elif _v[2] == '':
-            version_list.append("v%s.%s"
-                                % (_v[0], _v[1]))
+            version_list.append("v{}.{}".format(_v[0], _v[1]))
         elif _v[3] == '':
-            version_list.append("v%s.%s.%s"
-                                % (_v[0], _v[1], _v[2]))
+            version_list.append("v{}.{}.{}".format(_v[0], _v[1], _v[2]))
         elif _v[4] == '':
-            version_list.append("v%s.%s.%s-%s"
-                                % (_v[0], _v[1], _v[2], _v[3]))
+            version_list.append("v{}.{}.{}-{}".format(_v[0], _v[1], _v[2], _v[3]))
         else:
-            version_list.append("v%s.%s.%s-%s.%s"
-                                % (_v[0], _v[1], _v[2], _v[3], _v[4]))
+            version_list.append("v{}.{}.{}-{}.{}".format(_v[0], _v[1], _v[2], _v[3], _v[4]))
     return version_list
