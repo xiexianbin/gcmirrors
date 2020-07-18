@@ -8,6 +8,7 @@ import datetime
 import logging
 import sys
 import subprocess
+import traceback
 
 from urllib import parse
 from urllib import request
@@ -132,8 +133,8 @@ def sort_versions(tags_list):
         _version_list.append(versions)
     try:
         _version_list = sorted(_version_list, key=lambda x: (x[0], x[1]))
-    except Exception as e:
-        logger.error("sort [{}] error: {}".format(_version_list, e.message))
+    except:
+        logger.error("sort [{}] traceback: {}".format(_version_list, traceback.print_exc()))
 
     version_list = []
     for _v in _version_list:

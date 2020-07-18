@@ -144,7 +144,7 @@ def _do_sync():
     result_images_list = []
 
     logger.info("init multiprocessing pool, main pid is [{}]".format(os.getpid()))
-    pp = Pool(10)
+    pp = Pool(5)
     subprocess_result = []
     for image in _target_images_list:
         subprocess_result.append(pp.apply_async(_sync_image, args=(image,)))
