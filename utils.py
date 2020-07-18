@@ -130,7 +130,10 @@ def sort_versions(tags_list):
         else:
             versions = [version, '', '', '', '']
         _version_list.append(versions)
-    _version_list = sorted(_version_list, key=lambda x: (x[0], x[1]))
+    try:
+        _version_list = sorted(_version_list, key=lambda x: (x[0], x[1]))
+    except Exception as e:
+        logger.error("sort [{}] error: {}".format(_version_list, e.message))
 
     version_list = []
     for _v in _version_list:
