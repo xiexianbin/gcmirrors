@@ -148,6 +148,7 @@ def _do_sync():
     pp = Pool(5)
     subprocess_result = []
     for image in _target_images_list:
+        image = image.replace("\n", "")
         subprocess_result.append(pp.apply_async(_sync_image, args=(image,)))
 
     for result in subprocess_result:
