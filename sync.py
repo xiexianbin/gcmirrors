@@ -4,192 +4,90 @@
 # function: sync google containers registory to docker.com.
 # date 2018-3-10
 
-import datetime
-from jinja2 import Template
 import json
-import logging
 import os
-import subprocess
-import sys
-import urllib2
 
-# start log
-# create logger
-log_level = logging.DEBUG
-formatter = logging.Formatter(
-    fmt="%(asctime)-15s %(levelname)s %(process)d %(message)s - %(filename)s %(lineno)d",
-    datefmt="%a %d %b %Y %H:%M:%S")
+from jinja2 import Template
+from multiprocessing import Pool
+from urllib import error as urllib_error
 
-logger = logging.getLogger(name="gcmirrors")
-logger.setLevel(log_level)
+from utils import bash
+from utils import get
+from utils import logger
+from utils import now
+from utils import sort_versions
+from constants import GCR_IMAGES
+from constants import GIT_REPO
+from constants import GIT_USER
+from constants import GIT_TOKEN
+from constants import DOCKER_REPO
+from constants import DOCKER_TAGS_API_URL_TEMPLATE
 
-fh = logging.FileHandler(filename="gcmirrors.log")
-fh.setLevel(log_level)
-fh.setFormatter(formatter)
-logger.addHandler(fh)
 
-oh = logging.StreamHandler(sys.stdout)
-oh.setLevel(log_level)
-oh.setFormatter(formatter)
-logger.addHandler(oh)
-# end log
-
-# define file path
-GCR_IMAGES = "https://raw.githubusercontent.com/xiexianbin/gcmirrors/sync/gcmirrors.txt"
-
-GIT_TOKEN = os.environ.get("GIT_TOKEN", "")
-GIT_USER = "xiexianbin"
-GIT_REPO = "gcmirrors"
-DOCKER_REPO = GIT_REPO
-TMP_PATH = '/tmp/%s' % GIT_REPO
+TMP_PATH = '/tmp/{}'.format(GIT_REPO)
 CURRENT_PATH = os.getcwd()
-
-DOCKER_TAGS_API_URL_TEMPLATE = {
-    "docker.com": "https://registry.hub.docker.com/v1/repositories/%(repo)s/%(image)s/tags",
-    "gcr.io": "https://gcr.io/v2/%(repo)s/%(image)s/tags/list"
-}
-
-
-def _bash(command, force=False, debug=False):
-    args = ['bash', '-c', command]
-
-    _subp = subprocess.Popen(args, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-    stdout, stderr = _subp.communicate()
-    returncode = _subp.poll()
-    logger.debug("Run bash: %s, ret is %s, stderr is: %s"
-                 % (command, returncode, stderr))
-
-    if force:
-        return returncode, stdout, stderr
-    return returncode
-
-
-def _sort_versions(tags_list):
-    _version_list = []
-    for version in tags_list:
-        # major_version_number.minor_version_number.revision_number[-build_name.build_number]
-        v = version.split('-')
-        if '.' in v[0]:
-            m_version = v[0].split('.')
-            try:
-                major_version_number = int(m_version[0].replace('v', ''))
-            except:
-                # cadvisor:v.25.0
-                major_version_number = ""
-            minor_version_number = int(m_version[1]) if isinstance(
-                m_version[1], int) else m_version[1]
-            try:
-                revision_number = int(m_version[2]) if len(
-                    m_version) > 2 else ""
-            except:
-                revision_number = m_version[2]
-
-            if len(v) == 2:
-                b_version = v[1].split('.')
-                build_name = b_version[0]
-                try:
-                    build_number = int(b_version[1]) if len(
-                        b_version) > 1 else ""
-                except:
-                    build_number = b_version[1]
-            else:
-                build_name = ''
-                build_number = ''
-
-            versions = [major_version_number,
-                        minor_version_number,
-                        revision_number,
-                        build_name,
-                        build_number]
-        else:
-            versions = [v[0], '', '', '', '']
-        _version_list.append(versions)
-    _version_list = sorted(_version_list, key=lambda x: (x[0], x[1]))
-
-    version_list = []
-    for _v in _version_list:
-        if _v[1] == '':
-            version_list.append(_v[0])
-        elif _v[2] == '':
-            version_list.append("v%s.%s"
-                                % (_v[0], _v[1]))
-        elif _v[3] == '':
-            version_list.append("v%s.%s.%s"
-                                % (_v[0], _v[1], _v[2]))
-        elif _v[4] == '':
-            version_list.append("v%s.%s.%s-%s"
-                                % (_v[0], _v[1], _v[2], _v[3]))
-        else:
-            version_list.append("v%s.%s.%s-%s.%s"
-                                % (_v[0], _v[1], _v[2], _v[3], _v[4]))
-    return version_list
 
 
 def _get_images_tags_list(domain, repo, image):
     _tags_list = []
     url = DOCKER_TAGS_API_URL_TEMPLATE[domain] % {"repo": repo, "image": image}
     try:
-        json_tags = json.load(urllib2.urlopen(url))
-    except urllib2.HTTPError as e:
-        logger.warn("get url: %s, except: %s"
-                    % (url, e.msg))
+        resp = get(url)
+        tags = json.loads(resp)
+    except urllib_error.HTTPError as e:
+        logger.warn("get url: {}, except: {}".format(url, e.reason))
         return _tags_list
     if domain == "docker.com":
-        for t in json_tags:
+        for t in tags:
             _tags_list.append(t.get("name"))
     elif domain == "gcr.io":
-        _tags_list = json_tags.get("tags")
+        _tags_list = tags.get("tags")
 
-    if image in ["kubekins-test", "kube-cross"]:
-        return _tags_list
-    else:
-        # sort version:
-        # major_version_number.minor_version_number.revision_number[-build_name.build_number]
-        return _sort_versions(_tags_list)
+    # sort version:
+    # major_version_number.minor_version_number.revision_number[-build_name.build_number]
+    return sort_versions(_tags_list)
 
 
-def _sync_image(source_domain, source_repo,
-                target_domain, target_repo,
-                image, tag):
+def _do_sync_image(
+        source_domain, source_repo,
+        target_domain, target_repo,
+        image, tag):
     if source_domain == "docker.com":
         if source_repo == "":
-            source_image = '%s:%s' % (image, tag)
+            source_image = '{}:{}'.format(image, tag)
         else:
-            source_image = '%s/%s:%s' % (source_repo, image, tag)
+            source_image = '{}/{}:{}'.format(source_repo, image, tag)
     else:
-        source_image = '%s/%s/%s:%s' % (source_domain, source_repo, image, tag)
+        source_image = '{}/{}/{}:{}'.format(source_domain, source_repo, image, tag)
 
     if target_domain == "docker.com":
-        target_image = '%s/%s:%s' % (target_repo, image, tag)
+        target_image = '{}/{}:{}'.format(target_repo, image, tag)
     else:
-        target_image = '%s/%s/%s:%s' % (target_domain, target_repo, image, tag)
+        target_image = '{}/{}/{}:{}'.format(target_domain, target_repo, image, tag)
 
-    logger.info("begin to sync image from %s to %s"
-                % (source_image, target_image))
+    logger.info("begin to sync image from {} to {}".format(source_image, target_image))
 
     # source
-    _bash('docker pull %s' % source_image)
+    bash('docker pull {}'.format(source_image))
     # tag
-    _bash('docker tag %s %s' % (source_image, target_image))
+    bash('docker tag {} {}'.format(source_image, target_image))
     # push
-    _bash('docker push %s' % target_image)
+    bash('docker push {}'.format(target_image))
 
     # clean the docker file
-    _bash('docker system prune -f -a')
+    bash('docker system prune -f -a')
 
 
 def _init_git():
-    _bash('git config user.name "xiexianbin"')
-    _bash('git config user.email "me@xiexianbin.cn"')
+    bash('git config user.name "xiexianbin"')
+    bash('git config user.email "me@xiexianbin.cn"')
 
     if os.path.exists(TMP_PATH):
-        _bash('rm -rf %s' % TMP_PATH)
+        bash('rm -rf {}'.format(TMP_PATH))
     os.chdir("/tmp")
 
     # clone master branch
-    _bash('git clone "https://%s@github.com/%s/%s.git"'
-          % (GIT_TOKEN, GIT_USER, GIT_REPO))
+    bash('git clone "https://{}@github.com/{}/{}.git"'.format(GIT_TOKEN, GIT_USER, GIT_REPO))
 
     os.chdir(CURRENT_PATH)
 
@@ -200,62 +98,81 @@ def _update_change(images_list):
     out_path = os.path.join(TMP_PATH, "README.md")
     with open(in_path, 'r') as in_file, open(out_path, 'w') as out_file:
         tmle = Template(in_file.read())
-        out_file.write(tmle.render({"images_list": images_list,
-                                    "image_count": len(images_list),
-                                    "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}))
+        out_file.write(tmle.render({
+            "images_list": images_list,
+            "image_count": len(images_list),
+            "date": now()}))
 
 
 def _push_git():
     os.chdir(TMP_PATH)
-    _bash('git add .')
-    _bash('git commit -m "auto sync gcr.io images to gcmirrors"')
-    _bash('git push --quiet "https://%s@github.com/%s/%s.git" master:master'
-          % (GIT_TOKEN, GIT_USER, GIT_REPO))
+    bash('git add .')
+    bash('git commit -m "auto sync gcr.io images to gcmirrors"')
+    bash('git push --quiet "https://{}@github.com/{}/{}.git" '
+         'master:master'.format(GIT_TOKEN, GIT_USER, GIT_REPO))
+
+
+def _sync_image(image):
+    logger.debug("Begin to sync image: [{}], sub pid is [{}]".format(image, os.getpid()))
+    # source images tags
+    gcr_image_tags = _get_images_tags_list(
+        "gcr.io",
+        "google_containers",
+        image)
+    # target images tags
+    dockerhub_image_tags = _get_images_tags_list(
+        "docker.com",
+        DOCKER_REPO,
+        image)
+
+    for tag in gcr_image_tags:
+        if tag in dockerhub_image_tags:
+            logger.debug("image: {}:{}, is already sync.".format(image, tag))
+            continue
+
+        # do sync
+        _do_sync_image(
+            "gcr.io", "google_containers",
+            "docker.com", DOCKER_REPO,
+            image, tag)
+
+    return gcr_image_tags
 
 
 def _do_sync():
-    images_list = []
-    for image in urllib2.urlopen(GCR_IMAGES):
-        image = image.replace("\n", "")
-        logger.debug("Begin to sync image: [%s]" % image)
+    _target_images_list = get(GCR_IMAGES).split("\n")
+    result_images_list = []
 
-        # source images tags
-        gcr_image_tags = _get_images_tags_list(
-            "gcr.io", "google_containers", image)
-        # target images tags
-        dockerhub_image_tags = _get_images_tags_list(
-            "docker.com", DOCKER_REPO, image)
+    logger.info("init multiprocessing pool, main pid is [{}]".format(os.getpid()))
+    pp = Pool(5)
+    for image in _target_images_list:
+        result = pp.apply_async(_sync_image, args=(image,))
+        gcr_image_tags = result.get()
 
-        for tag in gcr_image_tags:
-            if tag in dockerhub_image_tags:
-                logger.debug("image: %s:%s, is already sync." % (image, tag))
-                continue
+        result_images_list.append({
+            "name": image,
+            "tags": gcr_image_tags,
+            "tags_count": len(gcr_image_tags),
+            "total_size": "-",
+            "date": now()})
+    pp.close()
+    pp.join()
+    logger.info('All subprocesses done.')
 
-            # do sync
-            _sync_image("gcr.io", "google_containers",
-                        "docker.com", DOCKER_REPO,
-                        image, tag)
-
-        images_list.append({"name": image,
-                            "tags": gcr_image_tags,
-                            "tags_count": len(gcr_image_tags),
-                            "total_size": "-",
-                            "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
-
-    return images_list
+    return result_images_list
 
 
-def main():
+def do_sync():
     logger.info("--- Begin to sync gcmirrors ---")
 
     # 1. copy mirror
     _init_git()
 
     # 2. do sync
-    images_list = _do_sync()
+    result_images_list = _do_sync()
 
     # 3. update
-    _update_change(images_list)
+    _update_change(result_images_list)
 
     # 4. push
     _push_git()
@@ -264,4 +181,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    do_sync()
