@@ -34,7 +34,7 @@ Total of {{ image_count }}'s gcr.io images
 {%- set docker_hub = "https://hub.docker.com/u/gcmirrors/%s/tags/" % name -%}
 {%- set tags_count = image['tags_count'] -%}
 {%- set total_size = image['total_size'] -%}
-{%- set date = image['date'] -%}
+{%- set date = image['date'] %}
 | {{ no }} | [{{ name }}]({{ sync_from }}) | [{{ name }}]({{ docker_hub }}) | {{ tags_count }} | {{ total_size }} | {{ date }} |
 {%- endfor %}
 
