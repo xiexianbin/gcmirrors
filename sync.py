@@ -137,7 +137,7 @@ def _sync_image(image):
             "docker.com", DOCKER_REPO,
             image, tag)
 
-    return "@@".join(gcr_image_tags)
+    return "{}@@@{}".format("@@".join(gcr_image_tags), image)
 
 
 def _do_sync():
@@ -153,10 +153,11 @@ def _do_sync():
 
     for result in subprocess_result:
         r = result.get()
-        gcr_image_tags = r.split("@@")
+        r = r.split("@@@")
+        gcr_image_tags = r[0].split("@@")
 
         result_images_list.append({
-            "name": image,
+            "name": r[1],
             "tags": gcr_image_tags,
             "tags_count": len(gcr_image_tags),
             "total_size": "-",
